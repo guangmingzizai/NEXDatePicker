@@ -10,9 +10,9 @@
 
 @implementation NEXDatePicker
 
-#define NEX_TODAY [NSDate date]
-#define UTC_TIME_ZONE [NSTimeZone timeZoneWithAbbreviation:@"UTC"]
-#define ROW_COUNT INT16_MAX
+#define NEX_TODAY [dateFormatter dateFromString:[dateFormatter stringFromDate:[NSDate date]]]
+#define NEX_LOCAL_ZONE [NSTimeZone localTimeZone]
+#define NEX_ROW_COUNT INT16_MAX
 
 #pragma mark - Initialization
 
@@ -27,12 +27,12 @@
         
         dateFormatter = [NSDateFormatter new];
         [dateFormatter setDateFormat:dateFormat];
-        [dateFormatter setTimeZone:UTC_TIME_ZONE];
+        [dateFormatter setTimeZone:NEX_LOCAL_ZONE];
         
         calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
         self.date = NEX_TODAY;
         
-        [self selectRow:(ROW_COUNT / 2) inComponent:0 animated:FALSE]; //Go to the middle of the list
+        [self selectRow:(NEX_ROW_COUNT / 2) inComponent:0 animated:FALSE]; //Go to the middle of the list
     }
     return self;
 }
@@ -61,7 +61,7 @@
     //Scroll to the appropriate date
     NSTimeInterval timeToDate = [date timeIntervalSinceDate:NEX_TODAY];
     NSInteger daysToDate = timeToDate / 60 / 60 / 24;
-    NSInteger row = ((ROW_COUNT / 2) + daysToDate);
+    NSInteger row = ((NEX_ROW_COUNT / 2) + daysToDate);
     [self selectRow:row inComponent:0 animated:animated];
     [self pickerView:self didSelectRow:row inComponent:0]; //Since the method won't be called automatically
 }
@@ -69,7 +69,7 @@
 -(NSDate *)dateForRow:(NSInteger)row {
     
     //Convert to get to the actual date
-    NSInteger todayIdx = ROW_COUNT / 2;
+    NSInteger todayIdx = NEX_ROW_COUNT / 2;
     NSInteger dayOffset = row - todayIdx;
     
     //Add the appropriate number of days
@@ -85,7 +85,7 @@
 
 -(NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
     
-    return ROW_COUNT; //Essentially infinite
+    return NEX_ROW_COUNT; //Essentially infinite
 }
 
 #pragma mark - Delegation
@@ -97,12 +97,12 @@
 
 -(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
     
-    if (row == ROW_COUNT / 2) {
+    if (row == NEX_ROW_COUNT / 2) {
         
         return @"Today";
         
     } else {
-     
+        
         NSDate *dateSelected = [self dateForRow:row];
         return [dateFormatter stringFromDate:dateSelected];
     }
