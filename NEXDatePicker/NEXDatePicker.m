@@ -3,14 +3,15 @@
 //  NEXDatePicker
 //
 //  Created by Michael Rebello on 4/14/15.
-//  Copyright (c) 2015 NEXMachine, LLC. All rights reserved.
+//  Copyright (c) 2016 NEXMachine, LLC. All rights reserved.
 //
 
 #import "NEXDatePicker.h"
 
 @implementation NEXDatePicker
 
-#define NEX_TODAY [dateFormatter dateFromString:[dateFormatter stringFromDate:[NSDate date]]]
+#define NEX_NOW [dateFormatter dateFromString:[dateFormatter stringFromDate:[NSDate date]]]
+#define NEX_DAY_IN_SECS (60 * 60 * 24)
 #define NEX_LOCAL_ZONE [NSTimeZone localTimeZone]
 #define NEX_ROW_COUNT INT16_MAX
 
@@ -30,7 +31,7 @@
         [dateFormatter setTimeZone:NEX_LOCAL_ZONE];
         
         calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-        self.date = NEX_TODAY;
+        self.date = NEX_NOW;
         
         [self selectRow:(NEX_ROW_COUNT / 2) inComponent:0 animated:FALSE]; //Go to the middle of the list
     }
@@ -58,10 +59,16 @@
 
 -(void)selectDate:(NSDate *)date animated:(BOOL)animated {
     
+    //Convert to absolute time
+    NSTimeInterval time = [date timeIntervalSince1970];
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970] + [NEX_LOCAL_ZONE secondsFromGMT];
+    
+    //Grab the days since 1970, ignoring time differences
+    int daysSince1970 = floor(time / NEX_DAY_IN_SECS);
+    int nowSince1970 = floor(now / NEX_DAY_IN_SECS);
+    
     //Scroll to the appropriate date
-    NSTimeInterval timeToDate = [date timeIntervalSinceDate:NEX_TODAY];
-    NSInteger daysToDate = timeToDate / 60 / 60 / 24;
-    NSInteger row = ((NEX_ROW_COUNT / 2) + daysToDate);
+    NSInteger row = (NEX_ROW_COUNT / 2) + (daysSince1970 - nowSince1970);
     [self selectRow:row inComponent:0 animated:animated];
     [self pickerView:self didSelectRow:row inComponent:0]; //Since the method won't be called automatically
 }
@@ -73,7 +80,7 @@
     NSInteger dayOffset = row - todayIdx;
     
     //Add the appropriate number of days
-    return [NEX_TODAY dateByAddingTimeInterval:(60 * 60 * 24 * dayOffset)];
+    return [NEX_NOW dateByAddingTimeInterval:(NEX_DAY_IN_SECS * dayOffset)];
 }
 
 #pragma mark - Data source
@@ -102,7 +109,7 @@
         return @"Today";
         
     } else {
-        
+     
         NSDate *dateSelected = [self dateForRow:row];
         return [dateFormatter stringFromDate:dateSelected];
     }

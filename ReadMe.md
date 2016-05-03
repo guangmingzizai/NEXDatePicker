@@ -2,7 +2,7 @@
 
 NEXDatePicker is an Objective-C library designed as a highly customizable `UIDatePicker` (though it inherits from `UIPickerView`) for iOS. As the normal date picker doesn't allow you to select specific date formats (most annoyingly, excluding the weekday from `UIDatePickerModeDate`), we decided to build a highly versatile picker that lets you *choose* a date format to display.
 
-For example, you can pass in `EEE, MMMM d, yyyy` as a format, NEXDatePicker will display dates like this: `Sun, January 5, 2015`.
+For example, you can pass in `EEE, MMMM d, yyyy` as a format, NEXDatePicker will display dates like this: `Sun, January 5, 2015`. The date picker uses local timezones, not UTC, to display dates.
 
 # Usage
 
@@ -17,7 +17,7 @@ Initializes an instance of `NEXDatePicker` and sets the date format for displayi
 
 `-(void)selectDate:(NSDate *)date animated:(BOOL)animated`
 
-This function should be used for selecting a given date on the date picker.
+This function should be used for selecting a given date on the date picker. Dates passed in should be converted to local time first for accurate results around midnight.
 
 ***
 #### Delegation
